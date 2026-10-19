@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Smart Cash Counter Pro | Cash & Balance Calculator by Atulit</title>
+
+    <!-- ================= SEO META TAGS ================= -->
+    <meta name="description" content="A smart cash counter and balance calculator app by Atulit. Quickly tally denomination notes, calculate customer bills, and determine exact change returns.">
+    <meta name="keywords" content="cash counter, note counter app, money tally app, billing calculator, cash manager pro, Atulit, PWA cash counter">
+    <meta name="author" content="Atulit">
+    <meta name="robots" content="index, follow">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Smart Cash Counter Pro | Cash Manager App">
+    <meta property="og:description" content="Effortlessly count daily cash notes and calculate customer bills and return change in seconds. Designed by Atulit.">
+    <meta property="og:image" content="icon.png"> 
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Smart Cash Counter Pro | Cash Manager App">
+    <meta name="twitter:description" content="Effortlessly count daily cash notes and calculate customer bills and return change in seconds. Designed by Atulit.">
+    <meta name="twitter:image" content="icon.png">
+
+    <!-- ================= PWA & FAVICON META ================= -->
+    <link rel="icon" type="image/png" sizes="192x192" href="icon.png"> 
+    <link rel="apple-touch-icon" href="icon.png">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#09090e">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Cash Manager Pro">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: radial-gradient(circle at 50% 0%, #1e1b4b 0%, #09090e 70%);
+            background-attachment: fixed;
+            color: #e2e8f0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Input Spinners Hide */
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.6);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(99, 102, 241, 0.3);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(99, 102, 241, 0.6);
+        }
+
+        /* Glassmorphism Styles */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .glass-card-subtle {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .glass-input {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #ffffff;
+        }
+
+        .glass-input:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.35);
+        }
+
+        .glass-sticky {
+            background: rgba(15, 15, 26, 0.9);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255, 255, 255, 0.12);
+        }
+    </style>
+</head>
+<body class="min-h-screen pb-24 lg:pb-8 max-w-7xl mx-auto p-3 sm:p-5">
+
+    <!-- App Top Bar -->
+    <header class="flex justify-between items-center py-3 px-2 mb-4 border-b border-white/10">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-2xl bg-indigo-600/30 border border-indigo-500/40 flex items-center justify-center text-indigo-400 shadow-lg shadow-indigo-500/10 overflow-hidden">
+                <img src="icon.png" alt="App Icon" class="w-full h-full object-cover" onerror="this.remove()">
+                <i class="fa-solid fa-wallet text-lg"></i>
+            </div>
+            <div>
+                <h1 class="text-base sm:text-lg font-bold tracking-wide text-white leading-tight flex items-center gap-2">
+                    Cash Manager
+                    <span class="text-[10px] bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 font-semibold px-2 py-0.5 rounded-full hidden sm:inline-block">Desktop & PWA Ready</span>
+                </h1>
+                <p class="text-xs text-slate-400">Cash & Customer Balance Calculator by Atulit</p>
+            </div>
+        </div>
+        
+        <div class="flex items-center gap-2">
+            <button id="pwaInstallBtn" onclick="installPWA()" class="hidden px-3 py-1.5 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/30 text-emerald-300 text-xs font-semibold transition flex items-center gap-1.5 active:scale-95">
+                <i class="fa-solid fa-download text-xs"></i> Install App
+            </button>
+            <button onclick="copySummary()" class="px-3 py-1.5 rounded-xl bg-indigo-600/20 hover:bg-indigo-600/30 border border-indigo-500/30 text-indigo-300 text-xs font-semibold transition flex items-center gap-1.5 active:scale-95" title="Copy Calculation Summary">
+                <i class="fa-regular fa-copy text-xs"></i> <span class="hidden sm:inline">Copy</span> Summary
+            </button>
+            <button onclick="resetAll()" class="px-3 py-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-400 text-xs font-semibold transition flex items-center gap-1.5 active:scale-95">
+                <i class="fa-solid fa-rotate-right text-xs"></i> Reset
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content Area: Grid 1 Col on Mobile, 2 Col on Desktop (lg) -->
+    <main class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+
+        <!-- PART 1: Cash Counter Section (Col 7 on Desktop) -->
+        <section class="lg:col-span-7 space-y-4">
+            <div class="glass-card rounded-2xl p-4 shadow-2xl">
+                
+                <!-- Section Header -->
+                <div class="flex justify-between items-center mb-3 pb-2 border-b border-white/10">
+                    <div class="flex items-center gap-2">
+                        <div class="w-6 h-6 rounded-lg bg-indigo-500/20 flex items-center justify-center text-indigo-400 text-xs">
+                            <i class="fa-solid fa-money-bill-wave"></i>
+                        </div>
+                        <span class="text-xs sm:text-sm font-bold uppercase tracking-wider text-indigo-400">
+                            Part 1: Cash Counter
+                        </span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span id="totalNotes" class="text-xs bg-indigo-500/10 text-indigo-300 font-bold px-2.5 py-1 rounded-full border border-indigo-500/20">
+                            0 Items
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Denominations Input List -->
+                <div class="space-y-2">
+                    <!-- Column Titles (Desktop) -->
+                    <div class="flex justify-between items-center px-3 text-[11px] font-bold uppercase text-slate-400 tracking-wider">
+                        <span class="w-16">Note/Coin</span>
+                        <span class="flex-1 text-center">Count / Quantity</span>
+                        <span class="w-24 text-right">Subtotal</span>
+                    </div>
+
+                    <div id="denominationsContainer" class="space-y-1.5">
+                        <!-- Javascript injects row inputs here -->
+                    </div>
+                </div>
+
+                <!-- Part 1 Summary Box -->
+                <div class="mt-4 p-3 rounded-xl bg-indigo-950/40 border border-indigo-500/20 flex justify-between items-center">
+                    <div>
+                        <div class="text-[10px] uppercase font-bold text-slate-400 tracking-wide">Total Cash in Hand (P1)</div>
+                        <div class="text-xs text-indigo-300">Sum of all notes & coins</div>
+                    </div>
+                    <div class="text-xl sm:text-2xl font-black text-indigo-400 tracking-tight">
+                        ₹ <span id="totalCash">0</span>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- PART 2: Customer Bill & Status Section (Col 5 on Desktop) -->
+        <section class="lg:col-span-5 space-y-4">
+            
+            <!-- Part 2 Input Card -->
+            <div class="glass-card rounded-2xl p-4 shadow-2xl space-y-4">
+                
+                <!-- Section Header -->
+                <div class="flex justify-between items-center pb-2 border-b border-white/10">
+                    <div class="flex items-center gap-2">
+                        <div class="w-6 h-6 rounded-lg bg-emerald-500/20 flex items-center justify-center text-emerald-400 text-xs">
+                            <i class="fa-solid fa-calculator"></i>
+                        </div>
+                        <span class="text-xs sm:text-sm font-bold uppercase tracking-wider text-emerald-400">
+                            Part 2: Customer Bill & Balance
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Inputs Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-3">
+                    <!-- Total Bill Input -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 uppercase tracking-wide mb-1 flex items-center justify-between">
+                            <span>Total Bill</span>
+                            <span class="text-[10px] text-slate-400 font-normal">Kool Bill</span>
+                        </label>
+                        <div class="relative">
+                            <span class="absolute left-3 top-2.5 text-slate-400 font-bold text-sm">₹</span>
+                            <input type="number" min="0" id="billAmount" placeholder="0" oninput="calculateBalance()" 
+                                class="glass-input w-full rounded-xl pl-7 pr-3 py-2 font-extrabold text-base focus:outline-none">
+                        </div>
+                    </div>
+
+                    <!-- Customer Given Input -->
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <label class="text-xs font-bold text-slate-300 uppercase tracking-wide">Received Cash</label>
+                            <button onclick="useCalculatedCash()" class="text-[10px] bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300 px-2 py-0.5 rounded border border-indigo-500/30 font-bold transition">
+                                <i class="fa-solid fa-arrow-down"></i> Copy P1
+                            </button>
+                        </div>
+                        <div class="relative">
+                            <span class="absolute left-3 top-2.5 text-slate-400 font-bold text-sm">₹</span>
+                            <input type="number" min="0" id="givenAmount" placeholder="0" oninput="calculateBalance()" 
+                                class="glass-input w-full rounded-xl pl-7 pr-3 py-2 font-extrabold text-base focus:outline-none">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Status Card -->
+                <div id="resultCard" class="rounded-xl p-3 bg-slate-900/80 border border-white/10 transition-all duration-300 flex justify-between items-center">
+                    <div>
+                        <div class="text-[10px] uppercase font-bold tracking-wider text-slate-400" id="statusLabel">Status</div>
+                        <p class="text-xs text-slate-300 font-medium" id="statusMessage">Enter bill & received amount</p>
+                    </div>
+                    <div class="text-xl sm:text-2xl font-black text-white" id="statusAmount">₹ 0</div>
+                </div>
+
+                <!-- Expected Denominations Return Suggestion (if return change) -->
+                <div id="changeBreakdownCard" class="hidden glass-card-subtle p-3 rounded-xl space-y-2 border border-slate-700/50">
+                    <div class="text-[11px] font-bold text-emerald-400 uppercase tracking-wide flex items-center justify-between">
+                        <span><i class="fa-solid fa-hand-holding-dollar mr-1"></i> Return Change Breakdown</span>
+                        <span id="totalChangeNotes" class="text-[10px] text-slate-400 font-normal">0 notes</span>
+                    </div>
+                    <div id="changeBreakdownList" class="flex flex-wrap gap-1.5 pt-1">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Transaction Log / History Card -->
+            <div class="glass-card rounded-2xl p-4 shadow-2xl space-y-3">
+                <div class="flex justify-between items-center pb-2 border-b border-white/10">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
+                        <i class="fa-solid fa-clock-rotate-left text-indigo-400"></i> Recent Entries Log
+                    </span>
+                    <button onclick="clearHistory()" class="text-[10px] text-rose-400 hover:text-rose-300 font-semibold underline">
+                        Clear History
+                    </button>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="saveCurrentTransaction()" class="w-full py-2 rounded-xl bg-indigo-600/30 hover:bg-indigo-600/40 border border-indigo-500/40 text-indigo-200 text-xs font-bold transition flex items-center justify-center gap-2 active:scale-95">
+                        <i class="fa-solid fa-bookmark"></i> Save Current Tally Log
+                    </button>
+                </div>
+                <div id="historyContainer" class="space-y-1.5 max-h-48 overflow-y-auto pr-1">
+                    <p class="text-center text-xs text-slate-500 py-3">No saved tally records yet.</p>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- MOBILE STICKY BOTTOM BAR (Visible only on Mobile screens < lg) -->
+    <div class="lg:hidden fixed bottom-0 left-0 right-0 z-50 glass-sticky px-4 py-3 shadow-2xl">
+        <div class="flex justify-between items-center pb-2 mb-2 border-b border-white/10">
+            <span class="text-xs font-semibold text-slate-300">Total Cash (P1)</span>
+            <span class="text-base font-black text-indigo-400 tracking-wide">₹ <span id="mobileTotalCash">0</span></span>
+        </div>
+        <div id="mobileResultCard" class="rounded-xl p-2 px-3 bg-slate-900/80 border border-white/10 flex justify-between items-center">
+            <div>
+                <div class="text-[9px] uppercase font-bold tracking-wider text-slate-400" id="mobileStatusLabel">Status</div>
+                <p class="text-[10px] text-slate-300 font-medium truncate max-w-[160px]" id="mobileStatusMessage">Enter bill & received</p>
+            </div>
+            <div class="text-lg font-black text-white" id="mobileStatusAmount">₹ 0</div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed top-5 right-5 z-50 transform translate-y-[-100px] opacity-0 transition-all duration-300 bg-indigo-600 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-2xl flex items-center gap-2 border border-indigo-400/40">
+        <i class="fa-solid fa-circle-check"></i>
+        <span id="toastMsg">Action completed successfully!</span>
+    </div>
+
+    <!-- PWA & Application Logic -->
+    <script>
+        // --- Service Worker Registration ---
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(reg => console.log('Service Worker registered successfully:', reg.scope))
+                    .catch(err => console.log('Service Worker registration failed:', err));
+            });
+        }
+
+        // --- PWA Installation Prompt ---
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            const installBtn = document.getElementById('pwaInstallBtn');
+            if (installBtn) installBtn.classList.remove('hidden');
+        });
+
+        function installPWA() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        showToast("App installed successfully!");
+                    }
+                    deferredPrompt = null;
+                    document.getElementById('pwaInstallBtn').classList.add('hidden');
+                });
+            }
+        }
+
+        const denoms = [500, 200, 100, 50, 20, 10, 5, 2, 1];
+        let historyList = [];
+
+        // Render Denominations UI on load
+        function renderDenominationInputs() {
+            const container = document.getElementById('denominationsContainer');
+            container.innerHTML = denoms.map(d => `
+                <div class="flex items-center justify-between px-3 py-1.5 rounded-xl bg-white/[0.02] hover:bg-white/[0.04] border border-white/[0.03] transition">
+                    <div class="w-16 font-extrabold text-xs text-slate-200 flex items-center gap-1">
+                        <span class="text-indigo-400 text-[10px]">₹</span>${d}
+                    </div>
+                    <div class="flex items-center gap-1 flex-1 max-w-[150px] mx-auto">
+                        <button onclick="adjustNote('${d}', -1)" class="w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 active:bg-indigo-600/40 text-slate-300 font-bold text-xs flex items-center justify-center transition">
+                            -
+                        </button>
+                        <input type="number" min="0" placeholder="0" id="note-${d}" oninput="calculateCash()" 
+                            class="glass-input w-full rounded-lg px-2 py-1 text-center font-bold text-xs sm:text-sm focus:outline-none transition">
+                        <button onclick="adjustNote('${d}', 1)" class="w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 active:bg-indigo-600/40 text-slate-300 font-bold text-xs flex items-center justify-center transition">
+                            +
+                        </button>
+                    </div>
+                    <div class="w-24 text-right font-bold text-xs sm:text-sm text-indigo-200">
+                        ₹<span id="subtotal-${d}">0</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function adjustNote(denom, delta) {
+            const input = document.getElementById(`note-${denom}`);
+            let val = parseInt(input.value) || 0;
+            val = Math.max(0, val + delta);
+            input.value = val === 0 ? '' : val;
+            calculateCash();
+        }
+
+        function calculateCash() {
+            let total = 0;
+            let noteCount = 0;
+
+            denoms.forEach(d => {
+                const count = parseInt(document.getElementById(`note-${d}`).value) || 0;
+                const subtotal = count * d;
+                document.getElementById(`subtotal-${d}`).innerText = subtotal.toLocaleString('en-IN');
+                total += subtotal;
+                noteCount += count;
+            });
+
+            const formattedTotal = total.toLocaleString('en-IN');
+            document.getElementById('totalCash').innerText = formattedTotal;
+            document.getElementById('mobileTotalCash').innerText = formattedTotal;
+            document.getElementById('totalNotes').innerText = `${noteCount} Items`;
+
+            calculateBalance();
+        }
+
+        function calculateBalance() {
+            const bill = parseFloat(document.getElementById('billAmount').value) || 0;
+            const given = parseFloat(document.getElementById('givenAmount').value) || 0;
+
+            const resultCard = document.getElementById('resultCard');
+            const statusLabel = document.getElementById('statusLabel');
+            const statusAmount = document.getElementById('statusAmount');
+            const statusMessage = document.getElementById('statusMessage');
+
+            const mobileResultCard = document.getElementById('mobileResultCard');
+            const mobileStatusLabel = document.getElementById('mobileStatusLabel');
+            const mobileStatusAmount = document.getElementById('mobileStatusAmount');
+            const mobileStatusMessage = document.getElementById('mobileStatusMessage');
+
+            const changeBreakdownCard = document.getElementById('changeBreakdownCard');
+
+            if (bill === 0 && given === 0) {
+                const defaultStyle = "rounded-xl p-3 bg-slate-900/80 border border-white/10 transition-all duration-300 flex justify-between items-center";
+                resultCard.className = defaultStyle;
+                if(mobileResultCard) mobileResultCard.className = "rounded-xl p-2 px-3 bg-slate-900/80 border border-white/10 flex justify-between items-center";
+
+                statusLabel.innerText = "Status";
+                statusLabel.className = "text-[10px] uppercase font-bold tracking-wider text-slate-400";
+                statusAmount.innerText = "₹ 0";
+                statusAmount.className = "text-xl sm:text-2xl font-black text-white";
+                statusMessage.innerText = "Enter bill & received amount";
+
+                if(mobileStatusLabel) {
+                    mobileStatusLabel.innerText = "Status";
+                    mobileStatusAmount.innerText = "₹ 0";
+                    mobileStatusMessage.innerText = "Enter bill & received";
+                }
+
+                changeBreakdownCard.classList.add('hidden');
+                return;
+            }
+
+            const diff = given - bill;
+
+            if (diff > 0) {
+                const style = "rounded-xl p-3 bg-emerald-500/20 border border-emerald-500/40 transition-all duration-300 flex justify-between items-center shadow-lg shadow-emerald-500/10";
+                resultCard.className = style;
+                if(mobileResultCard) mobileResultCard.className = "rounded-xl p-2 px-3 bg-emerald-500/20 border border-emerald-500/40 flex justify-between items-center";
+
+                const labelText = "Grahak Ko Dena Hai (Return)";
+                statusLabel.innerText = labelText;
+                statusLabel.className = "text-[10px] uppercase font-bold tracking-wider text-emerald-400";
+                statusAmount.innerText = "₹ " + diff.toLocaleString('en-IN');
+                statusAmount.className = "text-xl sm:text-2xl font-black text-emerald-300";
+                statusMessage.innerText = "Return change to customer";
+
+                if(mobileStatusLabel) {
+                    mobileStatusLabel.innerText = "Return to Customer";
+                    mobileStatusAmount.innerText = "₹ " + diff.toLocaleString('en-IN');
+                    mobileStatusAmount.className = "text-lg font-black text-emerald-300";
+                    mobileStatusMessage.innerText = "Grahak ko wapas karein";
+                }
+
+                calculateChangeBreakdown(diff);
+
+            } else if (diff < 0) {
+                const pending = Math.abs(diff);
+                const style = "rounded-xl p-3 bg-rose-500/20 border border-rose-500/40 transition-all duration-300 flex justify-between items-center shadow-lg shadow-rose-500/10";
+                resultCard.className = style;
+                if(mobileResultCard) mobileResultCard.className = "rounded-xl p-2 px-3 bg-rose-500/20 border border-rose-500/40 flex justify-between items-center";
+
+                const labelText = "Grahak Se Lena Baki (Pending)";
+                statusLabel.innerText = labelText;
+                statusLabel.className = "text-[10px] uppercase font-bold tracking-wider text-rose-400";
+                statusAmount.innerText = "₹ " + pending.toLocaleString('en-IN');
+                statusAmount.className = "text-xl sm:text-2xl font-black text-rose-300";
+                statusMessage.innerText = "Customer balance pending";
+
+                if(mobileStatusLabel) {
+                    mobileStatusLabel.innerText = "Pending Balance";
+                    mobileStatusAmount.innerText = "₹ " + pending.toLocaleString('en-IN');
+                    mobileStatusAmount.className = "text-lg font-black text-rose-300";
+                    mobileStatusMessage.innerText = "Grahak se lena baki";
+                }
+
+                changeBreakdownCard.classList.add('hidden');
+
+            } else {
+                const style = "rounded-xl p-3 bg-indigo-500/20 border border-indigo-500/40 transition-all duration-300 flex justify-between items-center shadow-lg shadow-indigo-500/10";
+                resultCard.className = style;
+                if(mobileResultCard) mobileResultCard.className = "rounded-xl p-2 px-3 bg-indigo-500/20 border border-indigo-500/40 flex justify-between items-center";
+
+                statusLabel.innerText = "Hisaab Barabar (Settled)";
+                statusLabel.className = "text-[10px] uppercase font-bold tracking-wider text-indigo-400";
+                statusAmount.innerText = "₹ 0";
+                statusAmount.className = "text-xl sm:text-2xl font-black text-indigo-300";
+                statusMessage.innerText = "Exact amount received";
+
+                if(mobileStatusLabel) {
+                    mobileStatusLabel.innerText = "Hisaab Barabar";
+                    mobileStatusAmount.innerText = "₹ 0";
+                    mobileStatusAmount.className = "text-lg font-black text-indigo-300";
+                    mobileStatusMessage.innerText = "Payment settled";
+                }
+
+                changeBreakdownCard.classList.add('hidden');
+            }
+        }
+
+        function calculateChangeBreakdown(amount) {
+            let rem = amount;
+            const breakdown = [];
+            let totalNoteCount = 0;
+
+            denoms.forEach(d => {
+                if (rem >= d) {
+                    const count = Math.floor(rem / d);
+                    rem %= d;
+                    breakdown.push({ denom: d, count });
+                    totalNoteCount += count;
+                }
+            });
+
+            const card = document.getElementById('changeBreakdownCard');
+            const list = document.getElementById('changeBreakdownList');
+            const totalLabel = document.getElementById('totalChangeNotes');
+
+            if (breakdown.length > 0) {
+                card.classList.remove('hidden');
+                totalLabel.innerText = `${totalNoteCount} notes/coins`;
+                list.innerHTML = breakdown.map(item => `
+                    <span class="px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-xs font-bold">
+                        ₹${item.denom} × ${item.count}
+                    </span>
+                `).join('');
+            } else {
+                card.classList.add('hidden');
+            }
+        }
+
+        function useCalculatedCash() {
+            let total = 0;
+            denoms.forEach(d => {
+                total += (parseInt(document.getElementById(`note-${d}`).value) || 0) * d;
+            });
+            document.getElementById('givenAmount').value = total || '';
+            calculateBalance();
+            showToast("Copied Part 1 Total to Received Cash!");
+        }
+
+        function resetAll() {
+            denoms.forEach(d => {
+                document.getElementById(`note-${d}`).value = '';
+            });
+            document.getElementById('billAmount').value = '';
+            document.getElementById('givenAmount').value = '';
+            calculateCash();
+            calculateBalance();
+            showToast("All fields reset!");
+        }
+
+        function copySummary() {
+            let totalCashP1 = 0;
+            let noteDetails = [];
+
+            denoms.forEach(d => {
+                const count = parseInt(document.getElementById(`note-${d}`).value) || 0;
+                if(count > 0) {
+                    noteDetails.push(`₹${d} x ${count} = ₹${count * d}`);
+                    totalCashP1 += count * d;
+                }
+            });
+
+            const bill = parseFloat(document.getElementById('billAmount').value) || 0;
+            const given = parseFloat(document.getElementById('givenAmount').value) || 0;
+            const diff = given - bill;
+
+            let summaryText = `--- CASH MANAGER PRO SUMMARY ---\n`;
+            summaryText += `Total Cash in Hand: ₹${totalCashP1.toLocaleString('en-IN')}\n`;
+            if (noteDetails.length > 0) {
+                summaryText += `Note Details:\n${noteDetails.join('\n')}\n`;
+            }
+            summaryText += `-----------------------------\n`;
+            summaryText += `Total Bill: ₹${bill.toLocaleString('en-IN')}\n`;
+            summaryText += `Received Amount: ₹${given.toLocaleString('en-IN')}\n`;
+
+            if (diff > 0) {
+                summaryText += `Status: Return to Customer (₹${diff.toLocaleString('en-IN')})\n`;
+            } else if (diff < 0) {
+                summaryText += `Status: Pending from Customer (₹${Math.abs(diff).toLocaleString('en-IN')})\n`;
+            } else if (bill > 0) {
+                summaryText += `Status: Hisaab Barabar (Settled)\n`;
+            }
+
+            const tempInput = document.createElement("textarea");
+            tempInput.value = summaryText;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand("copy");
+            document.body.removeChild(tempInput);
+
+            showToast("Summary copied to clipboard!");
+        }
+
+        function saveCurrentTransaction() {
+            let totalCashP1 = 0;
+            denoms.forEach(d => {
+                totalCashP1 += (parseInt(document.getElementById(`note-${d}`).value) || 0) * d;
+            });
+
+            const bill = parseFloat(document.getElementById('billAmount').value) || 0;
+            const given = parseFloat(document.getElementById('givenAmount').value) || 0;
+
+            if (totalCashP1 === 0 && bill === 0 && given === 0) {
+                showToast("Nothing to save! Enter cash or bill amounts.");
+                return;
+            }
+
+            const record = {
+                id: Date.now(),
+                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                totalCash: totalCashP1,
+                bill: bill,
+                given: given,
+                balance: given - bill
+            };
+
+            historyList.unshift(record);
+            if (historyList.length > 10) historyList.pop();
+            localStorage.setItem('cash_counter_history', JSON.stringify(historyList));
+            renderHistory();
+            showToast("Transaction saved to log!");
+        }
+
+        function renderHistory() {
+            const container = document.getElementById('historyContainer');
+            if (historyList.length === 0) {
+                container.innerHTML = `<p class="text-center text-xs text-slate-500 py-3">No saved tally records yet.</p>`;
+                return;
+            }
+
+            container.innerHTML = historyList.map(item => `
+                <div class="p-2.5 rounded-xl bg-white/[0.02] border border-white/5 flex justify-between items-center text-xs">
+                    <div>
+                        <div class="font-bold text-slate-200">Bill: ₹${item.bill.toLocaleString('en-IN')} | Rec: ₹${item.given.toLocaleString('en-IN')}</div>
+                        <div class="text-[10px] text-slate-400">P1 Cash: ₹${item.totalCash.toLocaleString('en-IN')} • ${item.time}</div>
+                    </div>
+                    <div class="font-extrabold ${item.balance > 0 ? 'text-emerald-400' : item.balance < 0 ? 'text-rose-400' : 'text-indigo-400'}">
+                        ${item.balance > 0 ? 'Return ₹' + item.balance.toLocaleString('en-IN') : item.balance < 0 ? 'Due ₹' + Math.abs(item.balance).toLocaleString('en-IN') : 'Settled'}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function clearHistory() {
+            historyList = [];
+            localStorage.removeItem('cash_counter_history');
+            renderHistory();
+            showToast("History cleared!");
+        }
+
+        function loadHistory() {
+            const saved = localStorage.getItem('cash_counter_history');
+            if (saved) {
+                try {
+                    historyList = JSON.parse(saved);
+                    renderHistory();
+                } catch(e) {
+                    historyList = [];
+                }
+            }
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMsg').innerText = msg;
+            toast.classList.remove('translate-y-[-100px]', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+            
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-[-100px]', 'opacity-0');
+            }, 2500);
+        }
+
+        // Initialize App
+        window.onload = function() {
+            renderDenominationInputs();
+            loadHistory();
+            calculateCash();
+        };
+    </script>
+</body>
+</html>
